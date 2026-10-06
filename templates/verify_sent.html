@@ -1,0 +1,24 @@
+{% extends "base.html" %}{% block title %}Verify Email | QuickBazaar{% endblock %}{% block flashes %}{% endblock %}{% block content %}
+<form class="form auth-form otp-form" method="post" action="/verify" id="otp-form" novalidate
+      data-purpose="verify" data-email="{{ email }}" data-wait="{{ wait }}" data-expires="{{ otp_left(email,'verify') }}">
+  <div class="auth-heading"><span class="auth-kicker">EMAIL VERIFICATION</span><h1>Check your Gmail</h1>
+    <p>We sent a 6-digit OTP to <b>{{ email }}</b>. It expires in {{ ttl // 60 }} minutes. Not there? Check your Spam folder.</p></div>
+  {% for cat, m in get_flashed_messages(with_categories=true) %}<div class="flash auth-flash {{ cat if cat in ('ok','err') }}" role="status"><span class="af-ic">{{ '✓' if cat=='ok' else '!' }}</span><span>{{ m }}</span></div>{% endfor %}
+
+  {% if notice %}<div class="banner {{ 'ok' if notice.ok else 'err' }}" role="status">{{ notice.message }}</div>{% endif %}
+  <div id="auth-error" class="form-error" role="alert" {% if not error %}hidden{% endif %}><span class="form-error-icon">!</span><div><strong>Couldn't verify</strong><div class="form-error-message">{{ error or '' }}</div></div></div>
+
+  <input type="hidden" name="email" value="{{ email }}">
+  <div class="otp-wrap">
+    <div class="otp-boxes" id="otp-boxes" role="group" aria-label="6-digit verification code"></div>
+    <noscript><label>Verification OTP<input name="code" inputmode="numeric" pattern="\d{6}" maxlength="6" required placeholder="123456"></label></noscript>
+    <p class="otp-status" id="otp-status" role="status" aria-live="polite"></p>
+    <p class="otp-expiry" id="otp-expiry" hidden>Code expires in <b id="otp-clock">--:--</b></p>
+  </div>
+  <button class="btn auth-submit" id="otp-submit" type="submit">Verify email</button>
+  <p class="auth-switch">Didn't get it? <button type="button" class="link" id="otp-resend">Send a new OTP</button><span id="resend-clock" class="muted"></span></p>
+  <p class="auth-switch"><a href="/register">Use a different email</a></p>
+</form>
+<noscript><form method="post" action="/resend" class="auth-resend"><input type="hidden" name="email" value="{{ email }}"><button class="link">Send a new OTP</button></form></noscript>
+{% endblock %}
+{% block extra_js %}<script src="{{ url_for('static', filename='otp.js') }}"></script>{% endblock %}

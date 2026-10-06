@@ -1,0 +1,11 @@
+{% extends "base.html" %}{% block title %}Buyer requests | QuickBazaar{% endblock %}{% block content %}{% from "_macros.html" import empty %}
+<h1>Buyer requests</h1>
+{% for r in rows %}<div class="reqrow">
+  <div><b>{{ r.buyer }}</b> is interested in <a href="/ad/{{ r.ad_id }}">{{ r.title }}</a><br><span class="meta">Status: {{ r.status }}</span></div>
+  <div>{% if r.status == 'pending' %}
+    <form method="post" action="/requests/{{ r.id }}/accept"><button class="btn">Accept</button></form>
+    <form method="post" action="/requests/{{ r.id }}/decline"><button class="link danger">Decline</button></form>
+  {% elif r.status == 'accepted' %}<a class="btn ghost" href="/chat/{{ r.ad_id }}/{{ r.buyer_id }}">Chat</a>{% endif %}</div>
+</div>
+{% else %}{% call empty("🙋", "No buyer requests yet", "When a buyer taps “I'm interested” on your ad, the request shows up here. Accept it to share your phone number and start chatting.") %}<a class="btn" href="/post">Post an ad</a><a class="btn ghost" href="/my-ads">View my ads</a>{% endcall %}{% endfor %}
+{% endblock %}

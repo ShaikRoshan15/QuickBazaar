@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#6c3cf0"><meta name="color-scheme" content="light">
+<title>{% block title %}QuickBazaar{% endblock %}</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M10 24h44l-4 32H14z' fill='%236c3cf0'/%3E%3Cpath d='M22 24v-6a10 10 0 0 1 20 0v6' fill='none' stroke='%23ffc83d' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script>(function(){var d=document.documentElement;d.classList.add("js");{% if replay_splash %}try{sessionStorage.removeItem("qb_seen")}catch(e){}{% endif %}try{if(sessionStorage.getItem("qb_seen"))d.classList.add("no-splash")}catch(e){try{if(document.referrer&&new URL(document.referrer).origin===location.origin)d.classList.add("no-splash")}catch(e2){}}})();</script>
+<noscript><style>#splash{display:none!important}html.js .top .logo{opacity:1!important}</style></noscript>
+</head><body>
+<div id="splash" aria-hidden="true"><div class="sp-logo">
+  <svg viewBox="0 0 64 64" width="96" height="96" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6c3cf0"/><stop offset=".5" stop-color="#ff3d81"/><stop offset="1" stop-color="#ff8a00"/></linearGradient></defs>
+  <path class="handle" d="M22 24v-6a10 10 0 0 1 20 0v6" fill="none" stroke="#ffc83d" stroke-width="5" stroke-linecap="round"/>
+  <path class="bag" d="M10 24h44l-4 32H14z" fill="url(#g)"/><path class="bolt" d="M35 30l-9 12h7l-3 10 12-15h-7z" fill="#fff"/>
+  </svg>
+  <div class="sp-word">{% for ch in "QuickBazaar" %}<span class="{{ 'gap' if loop.index==6 }}" style="--i:{{ loop.index }}">{{ ch }}</span>{% endfor %}</div>
+  <p class="sp-tag" id="sp-tag"></p><div class="sp-bar"><i></i></div>
+</div></div>
+<script>window.__qbSplashStart=Date.now();</script>
+<header class="top">
+  <a class="logo" href="/" aria-label="QuickBazaar home">Quick<b>Bazaar</b></a>
+  <form class="search" action="/" role="search">
+    <input name="q" value="{{ request.args.get('q','') }}" placeholder="Search phones, bikes, flats…" aria-label="Search">
+    <button type="submit">Search</button>
+  </form>
+  <nav id="main-nav" aria-label="Main">
+    {% if me %}{% if is_admin %}<a href="/admin">Admin</a>{% endif %}<a href="/profile">Profile</a><a href="/favorites">Saved</a><a href="/requests">Requests</a><a href="/inbox">Inbox</a><a href="/my-ads">My ads</a><a href="/logout">Log out</a>
+    {% else %}<a href="/login">Log in</a><a href="/register">Sign up</a>{% endif %}
+  </nav>
+  <a class="sell" href="/post">+ Add</a>
+  <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="main-nav"><span></span><span></span><span></span></button>
+</header>
+<main>
+  {% block flashes %}{% for cat, m in get_flashed_messages(with_categories=true) %}<div class="flash {{ cat if cat in ('ok','err') }}" role="status">{{ m }}</div>{% endfor %}{% endblock %}
+  {% block content %}{% endblock %}
+</main>
+<footer class="foot">
+  <div class="foot-grid">
+    <div class="fcol"><a class="logo" href="/">Quick<b>Bazaar</b></a><p class="fabout">Buy and sell near you, safely and quickly.</p></div>
+    <div class="fcol"><h3>Help &amp; legal</h3><div class="fbtns">
+      <a class="fbtn legal-link" href="/privacy">🔒 Privacy Policy</a>
+      <a class="fbtn legal-link" href="/terms">📜 Terms &amp; Conditions</a>
+      <a class="fbtn" href="mailto:{{ support_email }}">💬 Contact support</a>
+    </div></div>
+    <div class="fcol"><h3>Trust &amp; safety</h3><div class="trust"><span>✅ Verified accounts</span><span>🔐 Phone shared only after you accept</span><span>🤝 Meet in public places</span></div></div>
+  </div>
+  <p class="copy">© 2026 QuickBazaar · Never pay in advance or share OTPs</p>
+</footer>
+
+<button id="bot-toggle" aria-label="Open chat assistant">💬</button>
+<section id="bot" hidden aria-label="Bazaar Buddy chat"><div class="bot-head">Bazaar Buddy <button id="bot-close" aria-label="Close">×</button></div><div id="bot-log" aria-live="polite"></div><form id="bot-form"><input id="bot-input" placeholder="Ask or search…" autocomplete="off" aria-label="Message"><button>Send</button></form></section>
+
+<script src="{{ url_for('static', filename='forms.js') }}"></script>
+{% block extra_js %}{% endblock %}
+<script src="{{ url_for('static', filename='chatbot.js') }}"></script>
+<div id="legal-modal" class="legal-modal" hidden aria-hidden="true">
+  <div class="legal-backdrop" data-legal-close></div>
+  <div class="legal-dialog" role="dialog" aria-modal="true" aria-labelledby="legal-modal-title">
+    <header><h2 id="legal-modal-title">Legal information</h2><button type="button" class="legal-close" data-legal-close aria-label="Close">×</button></header>
+    <div id="legal-modal-body" class="legal-modal-body"><div class="modal-loading">Loading…</div></div>
+  </div>
+</div>
+<script>
+(function(){
+  var modal=document.getElementById('legal-modal'), body=document.getElementById('legal-modal-body'), title=document.getElementById('legal-modal-title');
+  if(!modal) return;
+  var previousFocus=null;
+  // On the standalone /privacy and /terms pages the tabs/links navigate normally; the popup is for links elsewhere.
+  var onLegalPage = location.pathname==='/privacy' || location.pathname==='/terms';
+  async function openLegal(url){
+    previousFocus=document.activeElement;
+    modal.hidden=false; modal.setAttribute('aria-hidden','false'); document.body.classList.add('modal-open');
+    body.innerHTML='<div class="modal-loading">Loading…</div>';
+    try{
+      var res=await fetch(url,{headers:{'X-Requested-With':'XMLHttpRequest'}});
+      if(!res.ok) throw new Error('Request failed');
+      var doc=new DOMParser().parseFromString(await res.text(),'text/html');
+      var main=doc.querySelector('main');
+      body.innerHTML=main ? main.innerHTML : '<div class="modal-error"><h3>Unable to load this page</h3><p>Please try again.</p></div>';
+      var h=body.querySelector('.lhero h1'); if(h) title.textContent=h.textContent;
+      body.scrollTop=0;
+    }catch(err){body.innerHTML='<div class="modal-error"><h3>Unable to load this page</h3><p>Please check your connection and try again.</p></div>';}
+    modal.querySelector('.legal-close').focus();
+  }
+  window.openLegalModal=openLegal;
+  function closeLegal(){
+    modal.hidden=true; modal.setAttribute('aria-hidden','true'); document.body.classList.remove('modal-open');
+    if(previousFocus && previousFocus.focus) previousFocus.focus();
+  }
+  document.addEventListener('click',function(e){
+    if(e.target.closest('[data-legal-close]')){closeLegal();return;}
+    var a=e.target.closest('a[href="/terms"],a[href="/privacy"]');
+    if(!a || e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
+    var insideModal=modal.contains(a);
+    if(onLegalPage && !insideModal) return;      // normal navigation on the legal pages themselves
+    e.preventDefault(); openLegal(a.getAttribute('href'));
+  });
+  document.addEventListener('keydown',function(e){if(e.key==='Escape' && !modal.hidden) closeLegal();});
+})();
+</script>
+</body></html>

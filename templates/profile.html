@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% block title %}My Profile | QuickBazaar{% endblock %}{% block content %}
+<form class="form auth-form profile-form" method="post" enctype="multipart/form-data" novalidate>
+<div class="auth-heading"><span class="auth-kicker">MY ACCOUNT</span><h1>Edit profile</h1><p>Update your name, profile picture, mobile number, Gmail and password.</p></div>
+{% if error %}<div class="form-error" role="alert"><span class="form-error-icon">!</span><div><strong>Please check</strong><div class="form-error-message">{{ error }}</div></div></div>{% endif %}
+<div class="profile-pic-wrap">{% if u.profile_pic %}<img src="/uploads/{{u.profile_pic}}" class="profile-pic">{% else %}<div class="profile-pic placeholder">{{ u.name[:1]|upper }}</div>{% endif %}<label class="btn ghost pic-btn">Change photo<input type="file" name="profile_pic" accept="image/png,image/jpeg,image/webp,image/gif" hidden></label></div>
+<label>Full name<input name="name" required minlength="2" maxlength="50" value="{{u.name}}"></label>
+<label>Gmail address<input name="email" type="email" required pattern="[A-Za-z0-9._%+\-]+@gmail\.com" value="{{u.email}}"></label>
+<label>Mobile number<span class="pw"><select name="cc" id="cc">{% for code,(n,l) in countries.items() %}<option value="{{code}}" data-len="{{l}}" data-name="{{n}}" {% if u.phone and u.phone.startswith(code) %}selected{% elif not u.phone and code=='+91' %}selected{% endif %}>{{n}} ({{code}})</option>{% endfor %}</select><input name="phone" id="phone" type="tel" inputmode="numeric" required value="{{u.phone.split(' ',1)[1] if u.phone and ' ' in u.phone else ''}}"></span></label>
+<hr><h3>Change password</h3><p class="note">Leave these blank to keep your current password.</p>
+<label>New password<input name="password" type="password" minlength="8"></label><label>Confirm new password<input name="confirm" type="password" minlength="8"></label>
+<button class="btn auth-submit">Save profile</button>
+</form>{% endblock %}

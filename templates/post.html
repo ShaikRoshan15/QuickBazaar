@@ -1,0 +1,11 @@
+{% extends "base.html" %}{% block title %}{{ 'Edit ad' if a and a.id else 'Post your ad' }} | QuickBazaar{% endblock %}{% block content %}
+<form class="form" method="post" enctype="multipart/form-data">
+  <h1>{{ 'Edit ad' if a and a.id else 'Post your ad' }}</h1>
+  <label>Title<input name="title" required maxlength="80" value="{{ a.title if a }}"></label>
+  <label>Category<select name="category">{% for c in categories %}<option {{ 'selected' if a and a.category==c }}>{{ c }}</option>{% endfor %}</select></label>
+  <label>Price (₹)<input name="price" type="text" inputmode="numeric" pattern="\d{1,9}" title="Digits only" required value="{{ a.price if a }}"></label>
+  <label>City<input name="city" required value="{{ a.city if a }}"></label>
+  <label>Description<textarea name="description" rows="5" required>{{ a.description if a }}</textarea></label>
+  <label>Photos (up to 6)<input name="images" type="file" accept="image/*" multiple></label><div id="prev" class="thumbs"></div>
+  <button class="btn">{{ 'Save changes' if a and a.id else 'Publish ad' }}</button>
+</form><script>document.querySelector('[name=images]').onchange=e=>{const p=document.getElementById('prev');p.innerHTML='';[...e.target.files].slice(0,6).forEach(f=>{const i=new Image();i.src=URL.createObjectURL(f);p.appendChild(i)})}</script>{% endblock %}

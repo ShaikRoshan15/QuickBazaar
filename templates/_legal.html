@@ -1,0 +1,8 @@
+<section class="lhero"><div class="lbig">{{ icon }}</div><h1>{{ title }}</h1><p>{{ sub }}</p><p class="upd">Last updated: October 2026</p>
+  <div class="ltabs"><a class="pill {{ 'on' if request.path=='/privacy' }}" href="/privacy">🔒 Privacy Policy</a><a class="pill {{ 'on' if request.path=='/terms' }}" href="/terms">📜 Terms &amp; Conditions</a></div></section>
+<div class="lhl">{% for i,t,d in hl %}<div class="hl h{{ loop.index }}"><span>{{ i }}</span><b>{{ t }}</b><small>{{ d }}</small></div>{% endfor %}</div>
+<h2 class="lh2">Jump to a section</h2>
+<nav class="toc">{% for i,t,d in secs %}<a class="pill" href="#s{{ loop.index }}">{{ i }} {{ t }}</a>{% endfor %}</nav>
+<div class="lact"><button type="button" class="btn ghost" data-all="open">Expand all</button><button type="button" class="btn ghost" data-all="close">Collapse all</button></div>
+<div class="lcards">{% for i,t,d in secs %}<details class="lcard" id="s{{ loop.index }}" open><summary><span class="ico">{{ i }}</span>{{ t }}</summary><p>{{ d }}</p></details>{% endfor %}</div>
+<div class="lfoot"><a class="btn" href="/">🏠 Back to home</a><a class="btn ghost" href="{{ other[0] }}">{{ other[1] }}</a><a class="btn ghost" href="mailto:support@quickbazaar.example">💬 Ask support</a><a class="btn ghost" href="#">⬆ Back to top</a></div>

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Create account' if mode=='register' else 'Log in' }} | QuickBazaar{% endblock %}
+{% block flashes %}{% endblock %}
+{% block content %}
+<section class="auth-shell">
+<aside class="auth-side" aria-hidden="true">
+  <div class="as-brand"><svg viewBox="0 0 64 64" width="44" height="44"><path d="M22 24v-6a10 10 0 0 1 20 0v6" fill="none" stroke="#ffc83d" stroke-width="5" stroke-linecap="round"/><path d="M10 24h44l-4 32H14z" fill="#fff"/><path d="M35 30l-9 12h7l-3 10 12-15h-7z" fill="#ff3d81"/></svg><span>Quick<b>Bazaar</b></span></div>
+  <h2>{{ 'Join your local marketplace.' if mode=='register' else 'Good to see you again.' }}</h2>
+  <p>{{ 'Create a free account to post ads and chat with verified buyers and sellers near you.' if mode=='register' else 'Pick up where you left off: your ads, requests and chats are waiting.' }}</p>
+  <ul><li><i>✅</i>Verified Gmail accounts</li><li><i>🔐</i>Phone shared only after you accept</li><li><i>🤝</i>Meet safely, pay on the spot</li></ul>
+</aside>
+<form class="form auth-form" method="post" novalidate id="auth-form" data-auth-mode="{{ mode }}">
+  <div class="auth-heading">
+    <span class="auth-kicker">QUICKBAZAAR</span>
+    <h1>{{ 'Create your account' if mode=='register' else 'Welcome back' }}</h1>
+    <p>{{ 'Join QuickBazaar and start buying or selling near you.' if mode=='register' else 'Log in to manage your listings and messages.' }}</p>
+  </div>
+  {% for cat, m in get_flashed_messages(with_categories=true) %}<div class="flash auth-flash {{ cat if cat in ('ok','err') }}" role="status"><span class="af-ic">{{ '✓' if cat=='ok' else '!' }}</span><span>{{ m }}</span></div>{% endfor %}
+
+  <div id="auth-error" class="form-error" role="alert" aria-live="polite" {% if not error %}hidden{% endif %}>
+    <span class="form-error-icon">!</span>
+    <div><strong>Please check the form</strong><div class="form-error-message">{{ error or '' }}</div></div>
+  </div>
+
+  {% if mode=='register' %}
+  <label>Full name<input name="name" autocomplete="name" required minlength="2" maxlength="50" value="{{ f.get('name','') }}"><small class="hint" data-hint></small></label>
+  {% endif %}
+
+  <label>Gmail address<input name="email" type="email" autocomplete="email" required placeholder="yourname@gmail.com" value="{{ f.get('email','') }}" inputmode="email" autocapitalize="off" spellcheck="false"><small class="hint" data-hint></small></label>
+
+  {% if mode=='register' %}
+  <label>Mobile number
+    <span class="pw"><select name="cc" id="cc" aria-label="Country code">
+      {% for code,(n,l) in countries.items() %}<option value="{{ code }}" data-len="{{ l }}" data-name="{{ n }}" {{ 'selected' if f.get('cc')==code or (not f.get('cc') and code=='+91') }}>{{ n }} ({{ code }})</option>{% endfor %}
+    </select><input name="phone" id="phone" autocomplete="tel-national" type="tel" inputmode="numeric" required value="{{ f.get('phone','') }}"></span>
+    <small class="hint" data-hint></small>
+  </label>
+  {% endif %}
+
+  <label>Password<span class="pw"><input name="password" type="password" autocomplete="{{ 'new-password' if mode=='register' else 'current-password' }}" required minlength="{{ 8 if mode=='register' else 1 }}"><button type="button" class="pw-t" aria-label="Show password" aria-pressed="false"><svg class="i-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="i-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 6.1A10.5 10.5 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6A16.8 16.8 0 0 0 2 12s3.6 7 10 7c1.7 0 3.2-.4 4.5-1M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg></button></span>
+    {% if mode=='register' %}<span class="meter" aria-hidden="true"><i></i></span>{% endif %}<small class="hint" data-hint></small></label>
+
+  {% if mode=='login' %}<div class="auth-row"><a href="/forgot-password">Forgot password?</a></div>{% endif %}
+
+  {% if mode=='register' %}
+  <small class="note">At least 8 characters, with a letter and a number.</small>
+  <label>Confirm password<span class="pw"><input name="confirm" type="password" autocomplete="new-password" required><button type="button" class="pw-t" aria-label="Show password" aria-pressed="false"><svg class="i-eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="i-eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 6.1A10.5 10.5 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6A16.8 16.8 0 0 0 2 12s3.6 7 10 7c1.7 0 3.2-.4 4.5-1M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg></button></span><small class="hint" data-hint></small></label>
+
+  <div class="terms-notice">
+    <span class="terms-icon">🔐</span>
+    <div>
+      <strong>Please accept the Terms &amp; Conditions and Privacy Policy.</strong>
+      <label class="chk"><input type="checkbox" name="terms" required {{ 'checked' if f.get('terms') }}> <span>I agree to the <a href="/terms" class="legal-link">Terms &amp; Conditions</a> and <a href="/privacy" class="legal-link">Privacy Policy</a>.</span></label>
+    </div>
+  </div>
+  {% endif %}
+
+  <button class="btn auth-submit" type="submit">{{ 'Sign up' if mode=='register' else 'Log in' }}</button>
+  <p class="auth-switch">{% if mode=='register' %}Have an account? <a href="/login">Log in</a>{% else %}New here? <a href="/register">Create an account</a>{% endif %}</p>
+</form>
+</section>
+{% endblock %}
+
+{% block extra_js %}<script src="{{ url_for('static', filename='auth.js') }}"></script>{% endblock %}

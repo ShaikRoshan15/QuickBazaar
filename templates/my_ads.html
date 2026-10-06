@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% block title %}{{ 'Saved ads' if saved else 'My ads' }} | QuickBazaar{% endblock %}{% block content %}{% from "_macros.html" import empty %}
+<h1>{{ 'Saved ads' if saved else 'My ads' }}</h1>
+{% if ads %}<div class="market-grid{{ '' if saved else ' own' }}">{% set favs=[] %}{% for a in ads %}
+  <div>{% include "_card.html" %}
+  {% if not saved %}<div class="row">
+    <a class="link" href="/ad/{{ a.id }}/edit">Edit</a>
+    {% if a.status=='active' %}<form method="post" action="/ad/{{ a.id }}/sold"><button class="link">Mark sold</button></form>{% endif %}
+    <form method="post" action="/ad/{{ a.id }}/delete" onsubmit="return confirm('Delete this ad?')"><button class="link danger">Delete</button></form>
+  </div>{% endif %}</div>{% endfor %}</div>
+{% else %}{% if saved %}{% call empty("💜", "No saved ads yet", "Tap the ♥ on any ad to keep it here. Saved ads stay in your account so you can compare prices and reach out when you're ready.") %}<a class="btn" href="/">Browse ads</a><a class="btn ghost legal-link" href="/terms">How buying works</a>{% endcall %}
+{% else %}{% call empty("📦", "You haven't posted any ads", "Selling takes about a minute. Clear photos, a fair price and an honest description get the most replies.") %}<a class="btn" href="/post">Post your first ad</a><a class="btn ghost legal-link" href="/terms">Read posting rules</a>{% endcall %}{% endif %}{% endif %}
+{% endblock %}

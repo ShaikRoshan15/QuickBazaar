@@ -1,0 +1,37 @@
+{% extends "base.html" %}{% block title %}{{ a.title }} | QuickBazaar{% endblock %}{% block content %}
+<div class="detail">
+  <div>
+    {% if imgs %}<img id="main-img" class="hero" src="/uploads/{{ imgs[0] }}" alt="{{ a.title }}">
+      {% if imgs|length > 1 %}<div class="thumbs">{% for i in imgs %}<img src="/uploads/{{ i }}" alt="Photo {{ loop.index }}">{% endfor %}</div>{% endif %}
+    {% else %}<div class="noimg big">No photo</div>{% endif %}
+    <h2>Description</h2><p class="desc">{{ a.description }}</p>
+    {% if reviews %}<h2>Seller reviews</h2>{% for r in reviews %}<p class="rv"><span class="stars">{{ '★'*r.rating }}</span> <b>{{ r.who }}</b><br>{{ r.comment }}</p>{% endfor %}{% endif %}
+  </div>
+  <aside class="panel">
+    <div class="price lg">{{ a.price|inr }}</div>
+    <h1>{{ a.title }}</h1>
+    <p class="meta">{{ a.city }} · {{ a.category }} · Posted {{ a.created[:10] }}</p>
+    <p>Seller: <b>{{ a.seller }}</b> {% if rating %}<span class="stars">★ {{ rating }}</span> <span class="meta">({{ nrev }})</span>{% else %}<span class="meta">No reviews yet</span>{% endif %}</p>
+    <p class="meta">👁 {{ a.views }} views · <button type="button" class="link" id="share">Share this ad</button></p>
+    {% if a.status=='sold' %}<p class="flash">This item has been sold.</p>{% endif %}
+    {% if not me %}<a class="btn" href="/login?next=/ad/{{ a.id }}">Log in to contact seller</a>
+    {% elif me.id == a.user_id %}<div class="phone">Your phone: {{ phone or 'not added' }}</div><a class="btn" href="/ad/{{ a.id }}/edit">Edit your ad</a>
+    {% else %}
+      {% if not interest %}
+        <form method="post" action="/interest/{{ a.id }}"><button class="btn" style="width:100%">I'm interested</button></form>
+        <p class="note">The seller's phone number is shared after they accept your request.</p>
+      {% elif interest.status == 'pending' %}<p class="flash">Request sent. Waiting for the seller to accept.</p>
+      {% elif interest.status == 'accepted' %}
+        <div class="phone">📞 {{ phone or 'Seller has not added a number' }}</div>
+        {% if phone %}<a class="btn ghost" href="tel:{{ phone|replace(' ','') }}">Call seller</a>{% endif %}
+      {% else %}<p class="flash">The seller declined this request.</p>{% endif %}
+      {% if interest and interest.status == 'accepted' %}<a class="btn ghost" href="/chat/{{ a.id }}/{{ a.user_id }}">Chat with seller</a>{% endif %}
+      {% if can_review %}<form method="post" action="/review/{{ a.id }}" class="rev"><b>Rate this seller</b>
+        <select name="rating" required><option value="">Stars</option>{% for n in [5,4,3,2,1] %}<option value="{{ n }}">{{ '★'*n }}</option>{% endfor %}</select>
+        <input name="comment" maxlength="300" placeholder="Optional comment"><button class="btn">Submit review</button></form>{% endif %}
+      <form method="post" action="/ad/{{ a.id }}/report" class="report-form"><input name="reason" placeholder="Report this ad (reason)" required maxlength="300"><button class="link">Report</button></form>
+    {% endif %}
+  </aside>
+</div>
+{% if more %}<h2>More in {{ a.category }}</h2><div class="market-grid">{% set favs=[] %}{% for a in more %}{% include "_card.html" %}{% endfor %}</div>{% endif %}
+{% endblock %}

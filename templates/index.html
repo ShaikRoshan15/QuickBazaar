@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}QuickBazaar | Buy & Sell Near You{% endblock %}
+{% block content %}
+{% set has_filters = request.args.get('q') or request.args.get('category') or request.args.get('city') or request.args.get('min') or request.args.get('max') or request.args.get('sort') not in [None, '', 'new'] %}
+
+<section class="qb-hero">
+  <div class="hero-copy">
+    <span class="eyebrow">YOUR LOCAL MARKETPLACE</span>
+    <h1>Buy &amp; sell anything <span>near you.</span></h1>
+    <p>Find great deals from people around you, or turn things you no longer need into cash.</p>
+    <form class="hero-search" action="/" role="search">
+      <div class="hero-search-field"><span>⌕</span><input name="q" value="{{ request.args.get('q','') }}" placeholder="Search phones, bikes, flats, electronics…" aria-label="Search products"></div>
+      <div class="hero-location"><span>⌖</span><input name="city" value="{{ request.args.get('city','') }}" placeholder="City" aria-label="City"></div>
+      <button type="submit">Search</button>
+    </form>
+    <div class="hero-links">
+      <span>Popular:</span>
+      {% for c in ['Mobiles','Bikes','Property','Electronics'] %}<a href="/?category={{ c }}">{{ c }}</a>{% endfor %}
+    </div>
+  </div>
+  <div class="hero-art" aria-hidden="true">
+    <div class="art-orb"></div>
+    <svg class="art-bag" viewBox="0 0 64 64" width="190" height="190"><defs><linearGradient id="hg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd46b"/><stop offset="1" stop-color="#ffffff"/></linearGradient></defs><path d="M22 24v-6a10 10 0 0 1 20 0v6" fill="none" stroke="#ffd46b" stroke-width="4.5" stroke-linecap="round"/><path d="M10 24h44l-4 32H14z" fill="url(#hg)" opacity=".95"/><path d="M35 30l-9 12h7l-3 10 12-15h-7z" fill="#6c3cf0"/></svg>
+    <span class="art-chip c1">📱 Mobiles</span><span class="art-chip c2">🏍️ Bikes</span><span class="art-chip c3">🏠 Property</span>
+  </div>
+</section>
+
+<section class="section-block categories-section">
+  <div class="section-heading"><div><span class="eyebrow dark">BROWSE</span><h2>Explore categories</h2></div><a href="/">View all</a></div>
+  <div class="category-grid">
+    {% for c in categories %}
+    <a class="category-card cat-{{ loop.index }}" href="/?category={{ c }}">
+      <span class="category-icon">{% if c=='Mobiles' %}📱{% elif c=='Vehicles' %}🚗{% elif c=='Property' %}🏠{% elif c=='Electronics' %}💻{% elif c=='Furniture' %}🛋️{% elif c=='Fashion' %}👗{% elif c=='Bikes' %}🏍️{% elif c=='Jobs' %}💼{% elif c=='Services' %}🛠️{% else %}📦{% endif %}</span>
+      <span><b>{{ c }}</b><small>Explore {{ c|lower }}</small></span><span class="cat-arrow">→</span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+{% if has_filters %}
+<section class="results-toolbar">
+  <div><span class="eyebrow dark">SEARCH RESULTS</span><h2>{{ total }} listing{{ '' if total==1 else 's' }} found</h2></div>
+  <form action="/" class="compact-filters">
+    <input type="hidden" name="q" value="{{ request.args.get('q','') }}"><input type="hidden" name="category" value="{{ request.args.get('category','') }}">
+    <input name="city" placeholder="City" value="{{ request.args.get('city','') }}"><input name="min" type="number" placeholder="Min ₹" value="{{ request.args.get('min','') }}"><input name="max" type="number" placeholder="Max ₹" value="{{ request.args.get('max','') }}">
+    <select name="sort"><option value="new">Newest</option><option value="low" {{ 'selected' if request.args.get('sort')=='low' }}>Price: low to high</option><option value="high" {{ 'selected' if request.args.get('sort')=='high' }}>Price: high to low</option></select><button type="submit">Apply</button>
+  </form>
+</section>
+{% else %}
+<section class="section-block listings-section">
+  <div class="section-heading"><div><span class="eyebrow dark">JUST POSTED</span><h2>Latest listings</h2><p>Discover new items available near you.</p></div><a href="/?sort=new">See all listings</a></div>
+</section>
+{% endif %}
+
+{% if ads %}
+<div class="market-grid">{% for a in ads %}{% include "_card.html" %}{% endfor %}</div>
+{% else %}
+<div class="clean-empty">
+  <div class="empty-icon">⌕</div><h3>{% if has_filters %}No listings match your search{% else %}No listings yet{% endif %}</h3>
+  <p>{% if has_filters %}Try a different category, location or price range.{% else %}Be the first to sell something on QuickBazaar.{% endif %}</p>
+  <div><a class="primary-btn" href="/post">+ Sell an item</a>{% if has_filters %}<a class="secondary-btn" href="/">Clear filters</a>{% endif %}</div>
+</div>
+{% endif %}
+
+{% if pages > 1 %}<div class="qb-pager">{% if page>1 %}<a href="{{ url_for('index', q=request.args.get('q'), category=request.args.get('category'), city=request.args.get('city'), min=request.args.get('min'), max=request.args.get('max'), sort=request.args.get('sort'), page=page-1) }}">← Previous</a>{% endif %}<span>Page {{ page }} of {{ pages }}</span>{% if page<pages %}<a href="{{ url_for('index', q=request.args.get('q'), category=request.args.get('category'), city=request.args.get('city'), min=request.args.get('min'), max=request.args.get('max'), sort=request.args.get('sort'), page=page+1) }}">Next →</a>{% endif %}</div>{% endif %}
+
+<section class="how-modern" id="how">
+  <div class="section-heading centered"><div><span class="eyebrow dark">SIMPLE &amp; SAFE</span><h2>How QuickBazaar works</h2><p>Everything you need to buy or sell locally, without the clutter.</p></div></div>
+  <div class="steps-modern">
+    <div><span>01</span><i>🔎</i><h3>Find what you need</h3><p>Search products and browse categories from sellers around you.</p></div>
+    <div><span>02</span><i>💬</i><h3>Connect with the seller</h3><p>Chat first and ask questions before deciding to buy.</p></div>
+    <div><span>03</span><i>🤝</i><h3>Meet &amp; buy safely</h3><p>Inspect the item, meet in a public place and never share OTPs.</p></div>
+  </div>
+</section>
+
+<section class="sell-cta">
+  <div><span class="eyebrow">READY TO SELL?</span><h2>Turn unused things into extra cash.</h2><p>Post your item in a few simple steps and connect with buyers near you.</p></div>
+  <a href="/post">+ Sell an item</a>
+</section>
+
+<section class="trust-strip">
+  <div><span>✓</span><div><b>Verified accounts</b><small>Real people, verified sign-ups.</small></div></div>
+  <div><span>🔒</span><div><b>Privacy focused</b><small>Your phone stays private until you accept.</small></div></div>
+  <div><span>🤝</span><div><b>Safer meetups</b><small>Meet in public and inspect before buying.</small></div></div>
+</section>
+{% endblock %}

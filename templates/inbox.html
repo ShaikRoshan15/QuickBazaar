@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block title %}Inbox | QuickBazaar{% endblock %}{% block content %}{% from "_macros.html" import empty %}
+<h1>Inbox</h1>
+{% for t in threads %}<a class="thread" href="/chat/{{ t.ad_id }}/{{ t.other }}"><b>{{ t.name }}</b> · {{ t.title }}<br><span class="meta">{{ t.last }}</span></a>
+{% else %}{% call empty("💬", "No conversations yet", "Open an ad and tap “Chat with seller” to start talking. Replies from sellers and buyers will appear here.") %}<a class="btn" href="/">Find something to buy</a>{% endcall %}{% endfor %}
+{% endblock %}

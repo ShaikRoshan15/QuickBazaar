@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Admin | QuickBazaar{% endblock %}
+{% block content %}
+<section class="admin-page">
+  <div class="lhero">
+    <p class="eyebrow">QuickBazaar</p>
+    <h1>Admin dashboard</h1>
+    <p class="meta">Manage users, listings and reported content from one place.</p>
+  </div>
+
+  <div class="market-grid" style="margin-bottom:24px">
+    <div class="card"><b>{{ stats.users }}</b><span class="meta">Users</span></div>
+    <div class="card"><b>{{ stats.verified }}</b><span class="meta">Verified users</span></div>
+    <div class="card"><b>{{ stats.ads }}</b><span class="meta">Listings</span></div>
+    <div class="card"><b>{{ stats.active_ads }}</b><span class="meta">Active listings</span></div>
+    <div class="card"><b>{{ stats.reports }}</b><span class="meta">Open reports</span></div>
+    <div class="card"><b>{{ stats.pending_requests }}</b><span class="meta">Pending requests</span></div>
+  </div>
+
+  <div class="panel" style="margin-bottom:24px">
+    <h2>Reported listings</h2>
+    {% if reports %}
+      {% for r in reports %}
+      <div class="reqrow">
+        <div>
+          <b>{{ r.title }}</b>
+          <div class="meta">Reported by {{ r.reporter }} · {{ r.reason or 'No reason provided' }}</div>
+        </div>
+        <div class="row">
+          <a class="btn ghost" href="/ad/{{ r.ad_id }}">View</a>
+          <form method="post" action="/admin/report/{{ r.id }}/resolve"><button class="btn">Resolve</button></form>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}<p class="meta">No open reports.</p>{% endif %}
+  </div>
+
+  <div class="panel" style="margin-bottom:24px">
+    <h2>Listings</h2>
+    {% for a in ads %}
+    <div class="reqrow">
+      <div>
+        <b>{{ a.title }}</b>
+        <div class="meta">{{ a.seller }} · {{ a.seller_email }} · {{ a.status }} · ₹{{ "{:,}".format(a.price or 0) }}</div>
+      </div>
+      <div class="row">
+        <a class="btn ghost" href="/ad/{{ a.id }}">View</a>
+        {% if a.status == 'removed' %}
+        <form method="post" action="/admin/ad/{{ a.id }}/restore"><button class="btn">Restore</button></form>
+        {% else %}
+        <form method="post" action="/admin/ad/{{ a.id }}/remove"><button class="link danger">Remove</button></form>
+        {% endif %}
+        <form method="post" action="/admin/ad/{{ a.id }}/delete" onsubmit="return confirm('Permanently delete this listing?')"><button class="link danger">Delete</button></form>
+      </div>
+    </div>
+    {% else %}<p class="meta">No listings.</p>{% endfor %}
+  </div>
+
+  <div class="panel">
+    <h2>Users</h2>
+    {% for u in users %}
+    <div class="reqrow">
+      <div>
+        <b>{{ u.name }}</b>
+        <div class="meta">{{ u.email }} · {{ u.phone }} · {% if u.verified %}Verified{% else %}Unverified{% endif %}</div>
+      </div>
+      <a class="btn ghost" href="mailto:{{ u.email }}">Email</a>
+    </div>
+    {% else %}<p class="meta">No users.</p>{% endfor %}
+  </div>
+</section>
+{% endblock %}

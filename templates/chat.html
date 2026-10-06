@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% block title %}Chat | QuickBazaar{% endblock %}{% block content %}
+<div class="chatbox">
+  <h1><a href="/ad/{{ a.id }}">{{ a.title }}</a></h1><p class="meta">Chatting with {{ other.name }}</p>
+  <div class="msgs">{% for m in msgs %}<div class="m {{ 'mine' if m.sender_id==me.id }}">{{ m.body }}<small>{{ m.created[11:16] }}</small></div>
+  {% else %}<p class="meta">Say hello and ask about the item.</p>{% endfor %}</div>
+  <form method="post" class="send"><input name="body" required autofocus autocomplete="off" placeholder="Type a message"><button class="btn">Send</button></form>
+</div>
+<script>document.querySelector('.msgs').scrollTop=1e5</script>{% endblock %}

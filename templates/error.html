@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block title %}{{ title }} | QuickBazaar{% endblock %}{% block content %}
+<div class="emp err-page"><div class="eico">{{ '🔒' if code==403 else '🧭' if code==404 else '⚠️' }}</div><h2>{{ title }}</h2><p>{{ text }}</p>
+<div class="eacts"><a class="btn" href="/">Back to home</a><a class="btn ghost" href="javascript:history.back()">Go back</a></div></div>
+{% endblock %}

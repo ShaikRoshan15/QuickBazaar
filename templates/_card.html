@@ -1,0 +1,11 @@
+<article class="card">
+  <a href="/ad/{{ a.id }}">
+    {% if a.image %}<img loading="lazy" src="/uploads/{{ a.image }}" alt="{{ a.title }}">{% else %}<div class="noimg">No photo</div>{% endif %}
+  </a>
+  <div class="cb">
+    <div class="price">{{ a.price|inr }}</div>
+    <a href="/ad/{{ a.id }}" class="t">{{ a.title }}</a>
+    <div class="meta">{{ a.city }} · {{ a.category }}{% if a.status=='sold' %} · <b>Sold</b>{% endif %}</div>
+  </div>
+  {% if me %}<button class="heart {{ 'on' if a.id in favs }}" data-id="{{ a.id }}" aria-label="Save ad">♥</button>{% endif %}
+</article>

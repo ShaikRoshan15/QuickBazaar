@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+.venv/
+.secret_key
+quickbazaar.db
+*.db
+uploads/
+__pycache__/
+*.pyc
